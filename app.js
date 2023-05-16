@@ -34,18 +34,19 @@ app.get('/' , (req , res)=>{
     res.send("this is the home route , please visit /articles route to get to the articles page ")
 })
 
-
-app.get('/articles' ,(req , res)=>{
+app.route('/articles')
+.get((req , res)=>{
     blogMODEL.find().then((foundArticle)=>{
         // console.log(foundArticle);
     res.send(foundArticle)
 
-    }).catch((err)=>{
-        res.send(err)
+    }).catch(()=>{
+        res.send("ARTICLE NOT FOUND")
     })
    })
 
-   app.post('/articles' , (req ,res)=>{
+
+   .post((req ,res)=>{
     console.log(req.body.title)
     console.log(req.body.content)
 
@@ -54,7 +55,6 @@ app.get('/articles' ,(req , res)=>{
         content : req.body.content
 
     })
-
     newArticle.save().then(()=>{
         res.send("new article has been created")
     }).catch((err)=>{
@@ -64,8 +64,60 @@ app.get('/articles' ,(req , res)=>{
    })
 
 
+   .delete((req , res)=>{
+    blogMODEL.deleteMany().then(()=>{
+        res.send("all the articles has been deleted")
+    }).catch((err)=>{
+        res.send(err)
+    })
+   })
 
 
+   app.route('/articles/:titleName')
+   .get((req,res)=>{
+    blogMODEL.findOne({title :req.params.titleName}).then((foundArticle)=>{
+        res.send(foundArticle)
+    })
+      .catch((err)=>{
+        res.send(err)
+      })
+    })
+   .post((req,res)=>{
+    const article = new blogMODEL({
+        title :req.body.title,
+        content : req.body.content
+    })
+
+    article.save().then(()=>{
+        res.send("article has been saved")
+    }).catch((err)=>{
+        res.send(err)
+    })
+   })
+   .put((req,res)=>{
+   blogMODEL.updateOne(
+    {title : req.params.titleName}, 
+       { title : req.body.title , content : req.body.content}
+    ).then(()=>{
+        res.send("data upated")
+    })
+   })
+
+// .patch((req,res)=>{
+//     blogMODEL.update(
+//         {title : req.body.titleName},
+//         {$set :req.body}
+//     )
+// })
+
+
+.delete((req,res)=>{
+    blogMODEL.deleteMany({}).then(()=>{
+        res.send('articles has been deleted')
+    }).catch((err)=>{
+        res.send(err)
+    })
+})
 
 
 
